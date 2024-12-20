@@ -304,10 +304,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 529aac84045799049aac1f9e6cdbbf36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 317054183}
   movementInput: {x: 0, y: 0}
   horizontal_Input: 0
-  vertical_Input: 0
   moveAmount: 0
   dodge_Input: 0
 --- !u!1 &714598176

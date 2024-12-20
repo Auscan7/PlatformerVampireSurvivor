@@ -13,7 +13,6 @@ public class PlayerInputManager : MonoBehaviour
     [Header("Movement Input")]
     [SerializeField] Vector2 movementInput;
     public float horizontal_Input;
-    public float vertical_Input;
     public float moveAmount;
 
     [Header("Player Action Input")]
@@ -36,13 +35,15 @@ public class PlayerInputManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // when the scene changes, run this logic
-        //SceneManager.activeSceneChanged += OnSceneChange;
+        SceneManager.activeSceneChanged += OnSceneChange;
 
-        instance.enabled = false;
+        //instance.enabled = false;
+        instance.enabled = true; // delete this and uncomment above line later when main menu logic is added
 
         if (playerControls != null)
         {
-            playerControls.Disable();
+            //playerControls.Disable();
+            playerControls.Enable(); // delete this and uncomment above line later when main menu logic is added
         }
     }
 
@@ -77,7 +78,7 @@ public class PlayerInputManager : MonoBehaviour
         {
             playerControls = new PLayerControls();
 
-            //playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<Vector2>(); //Gamepad: Left Stick, Keyboard: WASD
+            playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<Vector2>();
 
             // Actions
             //playerControls.PlayerActions.Dodge.performed += i => dodge_Input = true; //Gamepad: B(East), Keyboard:Space
@@ -128,19 +129,16 @@ public class PlayerInputManager : MonoBehaviour
     private void HandlePlayerMovementInput()
     {
         horizontal_Input = movementInput.x;
-        vertical_Input = movementInput.y;
 
-        // returns the absolute number, in other words number without the negative sign, so its always positive
-        moveAmount = Mathf.Clamp01(Mathf.Abs(vertical_Input) + Mathf.Abs(horizontal_Input));
+        moveAmount = horizontal_Input;
 
-        // clamp the values to 0, 0.5 or 1
-        if (moveAmount <= 0.5 && moveAmount > 0)
+        if (moveAmount > 0)
         {
             moveAmount = 1;
         }
-        else if (moveAmount > 0.5 && moveAmount <= 1)
+        else if (moveAmount < 0)
         {
-            moveAmount = 1;
+            moveAmount = -1;
         }
 
         // why do we pass 0 on the horizontal? it is because we only want non-strafing movement
