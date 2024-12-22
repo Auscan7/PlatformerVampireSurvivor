@@ -11,12 +11,13 @@ public class PlayerInputManager : MonoBehaviour
     PLayerControls playerControls;
 
     [Header("Movement Input")]
-    [SerializeField] Vector2 movementInput;
+    [SerializeField] float movementInput;
     public float horizontal_Input;
     public float moveAmount;
 
     [Header("Player Action Input")]
-    [SerializeField] bool dodge_Input = false;
+    [SerializeField] bool jump_Input = false;
+    [SerializeField] bool sprint_Input = false;
 
     private void Awake()
     {
@@ -78,15 +79,15 @@ public class PlayerInputManager : MonoBehaviour
         {
             playerControls = new PLayerControls();
 
-            playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<Vector2>();
+            playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<float>();
 
             // Actions
-            //playerControls.PlayerActions.Dodge.performed += i => dodge_Input = true; //Gamepad: B(East), Keyboard:Space
+            playerControls.PlayerActions.Jump.performed += i => jump_Input = true;
 
             // holding the input sets the bool to true
-            //playerControls.PlayerActions.Sprint.performed += i => sprint_Input = true; //Gamepad: B(East), Keyboard:LShift
+            playerControls.PlayerActions.Sprint.performed += i => sprint_Input = true;
             // releasing the input sets the bool to false
-            //playerControls.PlayerActions.Sprint.canceled += i => sprint_Input = false; //Gamepad: B(East), Keyboard:LShift
+            playerControls.PlayerActions.Sprint.canceled += i => sprint_Input = false;
         }
 
         playerControls.Enable();
@@ -122,62 +123,47 @@ public class PlayerInputManager : MonoBehaviour
     private void HandleAllInputs()
     {
         HandlePlayerMovementInput();
-        HandleDodgeInput();
+        HandleJumpInput();
     }
 
     // Movement
     private void HandlePlayerMovementInput()
     {
-        horizontal_Input = movementInput.x;
+        horizontal_Input = movementInput;
 
         moveAmount = horizontal_Input;
 
         if (moveAmount > 0)
         {
             moveAmount = 1;
+
+            if (sprint_Input)
+            {
+                moveAmount = 2;
+            }
         }
         else if (moveAmount < 0)
         {
             moveAmount = -1;
-        }
 
-        // why do we pass 0 on the horizontal? it is because we only want non-strafing movement
-        // we use the horizontal when we are strafing or locked on
-
-        //if (player == null)
-        //    return;
-
-        //if (moveAmount != 0)
-        //{
-        //    player.playerNetworkManager.isMoving.Value = true;
-        //}
-        //else
-        //{
-        //    player.playerNetworkManager.isMoving.Value = false;
-        //}
-
-        //// if we are not locked on, only use the move amount
-        //if (!player.playerNetworkManager.isLockedOn.Value || player.playerNetworkManager.isSprinting.Value)
-        //{
-        //    player.playerAnimatorManager.UpdateAnimatorMovementParameters(0, moveAmount, player.playerNetworkManager.isSprinting.Value);
-        //}
-        //// if we are locked on pass the horizontal movement as well
-        //else
-        //{
-        //    player.playerAnimatorManager.UpdateAnimatorMovementParameters(horizontal_Input, vertical_Input, player.playerNetworkManager.isSprinting.Value);
-        //}
+            if (sprint_Input)
+            {
+                moveAmount = -2;
+            }
+        }      
     }
 
     // Action
-    private void HandleDodgeInput()
+    private void HandleJumpInput()
     {
-        if (dodge_Input)
+        if (jump_Input)
         {
-            dodge_Input = false;
+            jump_Input = false;
 
             // note: return; if menu or UI window is open
 
-            //player.playerLocomotionManager.AttempToPerformDodge();
+            // attempt to perform jump
+            player.playerMovement.AttempToPerformJump();
         }
     }
 }

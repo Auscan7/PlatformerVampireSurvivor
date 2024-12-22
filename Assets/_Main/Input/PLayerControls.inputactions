@@ -7,7 +7,7 @@
             "actions": [
                 {
                     "name": "Movement",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "ab6abc26-a29d-4ff9-8ec9-84ed4066f10d",
                     "expectedControlType": "Axis",
                     "processors": "",
@@ -17,24 +17,83 @@
             ],
             "bindings": [
                 {
-                    "name": "",
-                    "id": "1bf2fb93-c14c-41ec-ba13-41d706bb0774",
+                    "name": "1D Axis",
+                    "id": "4eb446d4-1f0f-4167-8190-717600a506e3",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "54c85a23-0389-44fd-a9f2-a60996be331d",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
                     "isComposite": false,
-                    "isPartOfComposite": false
+                    "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "a04d7899-0971-4add-a1c0-c550bf87f7a8",
+                    "name": "positive",
+                    "id": "edf2648b-c61c-4f6d-882e-06552ed2dabe",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "Player Actions",
+            "id": "c4512208-d704-4896-90db-493a9e4a53ce",
+            "actions": [
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "10231f8b-9a49-4356-b357-d430b1c61071",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "92e98d9b-9194-4a3b-875b-5ab9a57a7b0c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "54425085-0a7c-4b75-8171-dd1ed90583bc",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8206a67a-d35b-4944-8a93-cedb60bc3379",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
