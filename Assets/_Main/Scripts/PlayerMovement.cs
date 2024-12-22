@@ -12,7 +12,8 @@ public class PlayerMovement : CharacterMovement
     [Header("Movement Settings")]
     [SerializeField] float walkingSpeed = 5f;
     [SerializeField] float movementSpeedMultiplier = 1;
-    [SerializeField] float airControlFactor = 1f;
+    [SerializeField] float airControlFactor = 4;
+    [SerializeField] bool facingRight = true;
     private Vector3 moveDirection;
 
     [Header("Jump")]
@@ -44,6 +45,18 @@ public class PlayerMovement : CharacterMovement
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (horizontalMovement > 0 && !facingRight)
+        {
+            FlipPlayer();
+        }
+        else if (horizontalMovement < 0 && facingRight)
+        {
+            FlipPlayer();
+        }
+    }
+
     public void HandleAllMovement()
     {
         if (isGrounded)
@@ -61,10 +74,18 @@ public class PlayerMovement : CharacterMovement
         horizontalMovement = PlayerInputManager.instance.horizontal_Input;
     }
 
+    private void FlipPlayer()
+    {
+        Vector3 currentScale = gameObject.transform.localScale;
+        currentScale.x *= -1;
+        gameObject.transform.localScale = currentScale;
+
+        facingRight = !facingRight;
+    }
+
     private void HandleGroundedMovement()
     {
         GetMovementValues();
-
         // Calculate speed based on moveAmount
         float speedMultiplier = Mathf.Abs(PlayerInputManager.instance.moveAmount);
         float effectiveSpeed = (walkingSpeed * movementSpeedMultiplier) * (speedMultiplier / 1.5f);
