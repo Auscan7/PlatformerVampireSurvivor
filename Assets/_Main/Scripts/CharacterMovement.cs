@@ -6,7 +6,7 @@ public class CharacterMovement : MonoBehaviour
     CharacterManager character;
 
     [Header("Ground Check & Jumping")]
-    [SerializeField] LayerMask groundLayer;
+    [SerializeField] protected LayerMask groundLayer;
     [SerializeField] float groundCheckSphereRadius = 1;
     [SerializeField] float groundCheckOffset = 1;
 

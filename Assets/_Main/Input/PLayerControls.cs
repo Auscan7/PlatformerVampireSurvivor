@@ -35,6 +35,15 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Climbing"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""a8a76f83-0524-4990-9208-a2c2ca3dd245"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -68,6 +77,39 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""6c270b4e-55bd-4153-a38f-5d4c314f4b46"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Climbing"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""e01ce2dd-b324-484c-9432-f4bd566b8cb4"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Climbing"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""99122dba-604e-4ef5-a15b-f4213bcbf09d"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Climbing"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 }
@@ -127,6 +169,7 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
         // Player Movement
         m_PlayerMovement = asset.FindActionMap("Player Movement", throwIfNotFound: true);
         m_PlayerMovement_Movement = m_PlayerMovement.FindAction("Movement", throwIfNotFound: true);
+        m_PlayerMovement_Climbing = m_PlayerMovement.FindAction("Climbing", throwIfNotFound: true);
         // Player Actions
         m_PlayerActions = asset.FindActionMap("Player Actions", throwIfNotFound: true);
         m_PlayerActions_Jump = m_PlayerActions.FindAction("Jump", throwIfNotFound: true);
@@ -193,11 +236,13 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_PlayerMovement;
     private List<IPlayerMovementActions> m_PlayerMovementActionsCallbackInterfaces = new List<IPlayerMovementActions>();
     private readonly InputAction m_PlayerMovement_Movement;
+    private readonly InputAction m_PlayerMovement_Climbing;
     public struct PlayerMovementActions
     {
         private @PLayerControls m_Wrapper;
         public PlayerMovementActions(@PLayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_PlayerMovement_Movement;
+        public InputAction @Climbing => m_Wrapper.m_PlayerMovement_Climbing;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -210,6 +255,9 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
             @Movement.started += instance.OnMovement;
             @Movement.performed += instance.OnMovement;
             @Movement.canceled += instance.OnMovement;
+            @Climbing.started += instance.OnClimbing;
+            @Climbing.performed += instance.OnClimbing;
+            @Climbing.canceled += instance.OnClimbing;
         }
 
         private void UnregisterCallbacks(IPlayerMovementActions instance)
@@ -217,6 +265,9 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
             @Movement.started -= instance.OnMovement;
             @Movement.performed -= instance.OnMovement;
             @Movement.canceled -= instance.OnMovement;
+            @Climbing.started -= instance.OnClimbing;
+            @Climbing.performed -= instance.OnClimbing;
+            @Climbing.canceled -= instance.OnClimbing;
         }
 
         public void RemoveCallbacks(IPlayerMovementActions instance)
@@ -291,6 +342,7 @@ public partial class @PLayerControls: IInputActionCollection2, IDisposable
     public interface IPlayerMovementActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnClimbing(InputAction.CallbackContext context);
     }
     public interface IPlayerActionsActions
     {

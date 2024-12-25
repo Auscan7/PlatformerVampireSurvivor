@@ -12,7 +12,9 @@ public class PlayerInputManager : MonoBehaviour
 
     [Header("Movement Input")]
     [SerializeField] float movementInput;
+    [SerializeField] float climbingInput;
     public float horizontal_Input;
+    public float vertical_Input;
     public float moveAmount;
 
     [Header("Player Action Input")]
@@ -80,6 +82,7 @@ public class PlayerInputManager : MonoBehaviour
             playerControls = new PLayerControls();
 
             playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<float>();
+            playerControls.PlayerMovement.Climbing.performed += i => climbingInput = i.ReadValue<float>();
 
             // Actions
             playerControls.PlayerActions.Jump.performed += i => jump_Input = true;
@@ -130,8 +133,12 @@ public class PlayerInputManager : MonoBehaviour
     private void HandlePlayerMovementInput()
     {
         horizontal_Input = movementInput;
+        vertical_Input = climbingInput;
 
-        moveAmount = horizontal_Input;
+        if(movementInput != 0)
+            moveAmount = horizontal_Input;
+        else if(climbingInput != 0)
+            moveAmount = vertical_Input;
 
         if (moveAmount > 0)
         {
@@ -150,7 +157,7 @@ public class PlayerInputManager : MonoBehaviour
             {
                 moveAmount = -2;
             }
-        }      
+        }
     }
 
     // Action
