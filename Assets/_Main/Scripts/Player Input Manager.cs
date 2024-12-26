@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 public class PlayerInputManager : MonoBehaviour
 {
     public static PlayerInputManager instance;
-    public PlayerManager player;
 
+    public PlayerManager player;
     PLayerControls playerControls;
 
     [Header("Movement Input")]
@@ -167,7 +167,7 @@ public class PlayerInputManager : MonoBehaviour
         {
             jump_Input = false;
 
-            // note: return; if menu or UI window is open
+            // note: return; if menu or UI window is open(?)
 
             // attempt to perform jump
             player.playerMovement.AttempToPerformJump();

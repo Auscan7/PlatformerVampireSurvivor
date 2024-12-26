@@ -11,7 +11,6 @@ public class CharacterMovement : MonoBehaviour
     [SerializeField] float groundCheckOffset = 1;
 
     [Header("Flags")]
-    public bool isRolling = false;
     public bool canMove = true;
     public bool isGrounded = true;
 

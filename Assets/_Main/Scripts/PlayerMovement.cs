@@ -31,14 +31,11 @@ public class PlayerMovement : CharacterMovement
     [SerializeField] bool isClimbing = false;
 
     [Header("Wall Detection")]
-    [SerializeField] private LayerMask wallLayer;
-    [SerializeField] private float wallCheckRadius = 0.2f;
-    [SerializeField] private float wallCheckRightLength = 0.1f;
-    [SerializeField] private float wallCheckLeftLength = 0.1f;
+    [SerializeField] private Vector2 wallCheckSize = new Vector2(0.1f, 1f);
+    [SerializeField] private Vector2 wallCheckRightOffset = new Vector2(0.5f, 0f);
+    [SerializeField] private Vector2 wallCheckLeftOffset = new Vector2(-0.5f, 0f);
     private bool isTouchingWallRight;
     private bool isTouchingWallLeft;
-
-
 
     protected override void Awake()
     {
@@ -128,12 +125,14 @@ public class PlayerMovement : CharacterMovement
         }
     }
 
+    // Gets the movement values from the Input Manager
     private void GetMovementValues()
     {
         horizontalMovement = PlayerInputManager.instance.horizontal_Input;
         verticalMovement = PlayerInputManager.instance.vertical_Input;
     }
 
+    //Flips the player facing towards the movement direction
     private void FlipPlayerHorizontal()
     {
         if (isClimbing)
@@ -149,9 +148,6 @@ public class PlayerMovement : CharacterMovement
 
     private void FlipPlayerVertical()
     {
-        if (isGrounded)
-            return;
-
         Vector3 currentScale = gameObject.transform.localScale;
         currentScale.x *= -1;
         gameObject.transform.localScale = currentScale;
@@ -160,13 +156,14 @@ public class PlayerMovement : CharacterMovement
         facingRight = !facingRight;
     }
 
+    // Wall Climbing logic
     private void CheckWallCollision()
     {
-        Vector2 rightPosition = (Vector2)transform.position + Vector2.right * wallCheckRightLength; // Adjust 0.5f as needed
-        Vector2 leftPosition = (Vector2)transform.position + Vector2.left * wallCheckLeftLength;
+        Vector2 rightPosition = (Vector2)transform.position + wallCheckRightOffset;
+        Vector2 leftPosition = (Vector2)transform.position + wallCheckLeftOffset;
 
-        isTouchingWallRight = Physics2D.OverlapCircle(rightPosition, wallCheckRadius, wallLayer);
-        isTouchingWallLeft = Physics2D.OverlapCircle(leftPosition, wallCheckRadius, wallLayer);
+        isTouchingWallRight = Physics2D.OverlapBox(rightPosition, wallCheckSize, 0f, groundLayer);
+        isTouchingWallLeft = Physics2D.OverlapBox(leftPosition, wallCheckSize, 0f, groundLayer);
 
         if ((isTouchingWallRight || isTouchingWallLeft))
         {
@@ -197,6 +194,49 @@ public class PlayerMovement : CharacterMovement
         transform.rotation = Quaternion.Euler(0, 0, 0); // Reset rotation
     }
 
+    private void HandleClimbingMovement()
+    {
+        GetMovementValues();
+        float speedMultiplier = Mathf.Abs(PlayerInputManager.instance.moveAmount);
+        float effectiveSpeed = (climbingSpeed * movementSpeedMultiplier) * (speedMultiplier / 1.5f);
+
+        // Apply climbing movement (vertical)
+        player.rb.velocity = new Vector2(player.rb.velocity.x, verticalMovement * effectiveSpeed);
+
+        // Apply additional force towards the wall
+        Vector2 wallDirection = Vector2.zero;
+
+        if (isTouchingWallRight || isTouchingWallLeft)
+        {
+            wallDirection = -transform.up; // this direction is always towards the wall since we rotate the player parent object 90 on the Z axis
+        }
+
+        if (wallDirection != Vector2.zero)
+        {
+            player.rb.AddForce(wallDirection * wallStickForce, ForceMode2D.Force);
+        }
+
+        // Disable gravity while climbing
+        player.rb.gravityScale = 0;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        // Check if the collision object is part of the wall layer
+        if (((1 << collision.gameObject.layer) & groundLayer) != 0)
+        {
+            isClimbing = false;
+            ResetPlayerRotation();
+
+            // Reset gravity scale if not touching any wall or ground
+            if (!isTouchingWallRight && !isTouchingWallLeft && !isGrounded)
+            {
+                player.rb.gravityScale = 7; // Default gravity
+            }
+        }
+    }
+
+    // Grounded movement logic
     private void HandleGroundedMovement()
     {
         GetMovementValues();
@@ -211,63 +251,7 @@ public class PlayerMovement : CharacterMovement
         player.rb.drag = (Mathf.Abs(horizontalMovement) > 0.01f) ? 0 : 7;
     }
 
-    private void HandleClimbingMovement()
-    {
-        GetMovementValues();
-
-        // Apply climbing movement (vertical)
-        float effectiveSpeed = climbingSpeed * Mathf.Abs(PlayerInputManager.instance.moveAmount);
-        player.rb.velocity = new Vector2(player.rb.velocity.x, verticalMovement * effectiveSpeed);
-
-        // Apply additional force towards the wall
-        Vector2 wallDirection = Vector2.zero;
-
-        if (isTouchingWallRight)
-        {
-            wallDirection = -transform.up;  // Pull towards the right wall
-        }
-        else if (isTouchingWallLeft)
-        {
-            wallDirection = -transform.up;   // Pull towards the left wall
-        }
-
-        // Apply force towards the wall (scaled by wallStickForce)
-        if (wallDirection != Vector2.zero)
-        {
-            player.rb.AddForce(wallDirection * wallStickForce, ForceMode2D.Force);
-        }
-
-        // Disable gravity while climbing
-        player.rb.gravityScale = 0;
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        // Check if the collision object is part of the wall layer
-        if (((1 << collision.gameObject.layer) & wallLayer) != 0)
-        {
-            isClimbing = false;
-            ResetPlayerRotation();
-
-            // Reset gravity scale if not touching any wall or ground
-            if (!isTouchingWallRight && !isTouchingWallLeft && !isGrounded)
-            {
-                player.rb.gravityScale = 7; // Default gravity
-            }
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // Right wall check
-        Gizmos.color = isTouchingWallRight ? Color.green : Color.red;
-        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.right * wallCheckRightLength, wallCheckRadius);
-
-        // Left wall check
-        Gizmos.color = isTouchingWallLeft ? Color.green : Color.red;
-        Gizmos.DrawWireSphere((Vector2)transform.position + Vector2.left * wallCheckLeftLength, wallCheckRadius);
-    }
-
+    // Aerial movement and jump logic
     private void HandleAerialMovement()
     {
         GetMovementValues();
@@ -287,11 +271,29 @@ public class PlayerMovement : CharacterMovement
 
     public void AttempToPerformJump()
     {
+        if(isClimbing)
+            return;
+
         // Apply an upward force for jumping
         if (coyoteTimeCounter > 0f || isGrounded)
         {
             player.rb.velocity = new Vector2(player.rb.velocity.x, jumpForce);
             coyoteTimeCounter = 0f;
         }
+    }
+
+    // Debug
+    private void OnDrawGizmos()
+    {
+
+        // Right wall check
+        Vector2 rightPosition = (Vector2)transform.position + wallCheckRightOffset;
+        Gizmos.color = isTouchingWallRight ? Color.green : Color.red;
+        Gizmos.DrawWireCube(rightPosition, wallCheckSize);
+
+        // Left wall check
+        Vector2 leftPosition = (Vector2)transform.position + wallCheckLeftOffset;
+        Gizmos.color = isTouchingWallLeft ? Color.green : Color.red;
+        Gizmos.DrawWireCube(leftPosition, wallCheckSize);
     }
 }
