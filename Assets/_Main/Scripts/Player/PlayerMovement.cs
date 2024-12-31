@@ -22,8 +22,8 @@ public class PlayerMovement : CharacterMovement
     [SerializeField] float jumpForce = 10f;
     [SerializeField] float coyoteTime = 0.1f;
     [SerializeField] float coyoteTimeCounter;
-    [SerializeField] float jumpBufferTime = 0.2f;
-    [SerializeField] float jumpBufferCounter;
+    //[SerializeField] float jumpBufferTime = 0.2f;
+    //[SerializeField] float jumpBufferCounter;
 
     [Header("Climb")]
     [SerializeField] float climbingSpeed = 5f;
@@ -69,37 +69,8 @@ public class PlayerMovement : CharacterMovement
 
     private void FixedUpdate()
     {
-        if (horizontalMovement > 0 && !facingRight && !facingUp)
-        {
-            FlipPlayerHorizontal();
-        }
-        else if (horizontalMovement < 0 && facingRight && facingUp)
-        {
-            FlipPlayerHorizontal();
-        }
-
-        if (isTouchingWallRight)
-        {
-            if (verticalMovement > 0 && !facingUp && !facingRight)
-            {
-                FlipPlayerVertical();
-            }
-            else if (verticalMovement < 0 && facingUp && facingRight)
-            {
-                FlipPlayerVertical();
-            }
-        }
-        else if (isTouchingWallLeft)
-        {
-            if (verticalMovement > 0 && facingUp && facingRight)
-            {
-                FlipPlayerVertical();
-            }
-            else if (verticalMovement < 0 && !facingUp && !facingRight)
-            {
-                FlipPlayerVertical();
-            }
-        }
+        FlipXCase();
+        FlipYCase();
     }
 
     public void HandleAllMovement()
@@ -156,6 +127,44 @@ public class PlayerMovement : CharacterMovement
         facingRight = !facingRight;
     }
 
+    private void FlipXCase()
+    {
+        if (horizontalMovement > 0 && !facingRight && !facingUp)
+        {
+            FlipPlayerHorizontal();
+        }
+        else if (horizontalMovement < 0 && facingRight && facingUp)
+        {
+            FlipPlayerHorizontal();
+        }
+    }
+
+    private void FlipYCase()
+    {
+        if (isTouchingWallRight)
+        {
+            if (verticalMovement > 0 && !facingUp && !facingRight)
+            {
+                FlipPlayerVertical();
+            }
+            else if (verticalMovement < 0 && facingUp && facingRight)
+            {
+                FlipPlayerVertical();
+            }
+        }
+        else if (isTouchingWallLeft)
+        {
+            if (verticalMovement > 0 && facingUp && facingRight)
+            {
+                FlipPlayerVertical();
+            }
+            else if (verticalMovement < 0 && !facingUp && !facingRight)
+            {
+                FlipPlayerVertical();
+            }
+        }
+    }
+
     // Wall Climbing logic
     private void CheckWallCollision()
     {
@@ -179,13 +188,16 @@ public class PlayerMovement : CharacterMovement
 
     private void RotatePlayerForWall()
     {
-        if (isTouchingWallRight)
+        if (verticalMovement != 0 && isClimbing)
         {
-            transform.rotation = Quaternion.Euler(0, 0, 90); // Rotate for right wall
-        }
-        else if (isTouchingWallLeft)
-        {
-            transform.rotation = Quaternion.Euler(0, 0, -90); // Rotate for left wall
+            if (isTouchingWallRight)
+            {
+                transform.rotation = Quaternion.Euler(0, 0, 90); // Rotate for right wall
+            }
+            else if (isTouchingWallLeft)
+            {
+                transform.rotation = Quaternion.Euler(0, 0, -90); // Rotate for left wall
+            }
         }
     }
 

@@ -7,6 +7,8 @@ public class PlayerInputManager : MonoBehaviour
 {
     public static PlayerInputManager instance;
 
+    public int targetFrameRate = 60;
+
     public PlayerManager player;
     PLayerControls playerControls;
 
@@ -48,6 +50,9 @@ public class PlayerInputManager : MonoBehaviour
             //playerControls.Disable();
             playerControls.Enable(); // delete this and uncomment above line later when main menu logic is added
         }
+
+        Application.targetFrameRate = targetFrameRate;
+        QualitySettings.vSyncCount = 0; // Make sure VSync is disabled to honor targetFrameRate
     }
 
     private void OnSceneChange(Scene oldScene, Scene newScene)
