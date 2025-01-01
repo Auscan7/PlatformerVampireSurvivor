@@ -35,7 +35,7 @@ public class PlayerProjectileFiring : MonoBehaviour
             if (currentTarget != null)
             {
                 // Check if the current target is still valid (in range and not blocked)
-                if (currentTarget == closestEnemy && IsPathClear(currentTarget.transform.position))
+                if (currentTarget != null && currentTarget == closestEnemy && IsPathClear(currentTarget.transform.position))
                 {
                     // If the current target is valid, try to fire
                     TryFire(currentTarget.transform.position);

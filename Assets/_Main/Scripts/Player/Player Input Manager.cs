@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerInputManager : MonoBehaviour
 {
@@ -22,6 +24,10 @@ public class PlayerInputManager : MonoBehaviour
     [Header("Player Action Input")]
     [SerializeField] bool jump_Input = false;
     [SerializeField] bool sprint_Input = false;
+
+    [Header("UI")]
+    [SerializeField] bool inventory_Input = false;
+    [SerializeField] private Button inventoryButton;
 
     private void Awake()
     {
@@ -51,8 +57,8 @@ public class PlayerInputManager : MonoBehaviour
             playerControls.Enable(); // delete this and uncomment above line later when main menu logic is added
         }
 
-        Application.targetFrameRate = targetFrameRate;
-        QualitySettings.vSyncCount = 0; // Make sure VSync is disabled to honor targetFrameRate
+        //Application.targetFrameRate = targetFrameRate;
+        //QualitySettings.vSyncCount = 0; // Make sure VSync is disabled to honor targetFrameRate
     }
 
     private void OnSceneChange(Scene oldScene, Scene newScene)
@@ -86,16 +92,20 @@ public class PlayerInputManager : MonoBehaviour
         {
             playerControls = new PLayerControls();
 
+            // Movement
             playerControls.PlayerMovement.Movement.performed += i => movementInput = i.ReadValue<float>();
             playerControls.PlayerMovement.Climbing.performed += i => climbingInput = i.ReadValue<float>();
 
             // Actions
             playerControls.PlayerActions.Jump.performed += i => jump_Input = true;
-
+            // Sprint
             // holding the input sets the bool to true
             playerControls.PlayerActions.Sprint.performed += i => sprint_Input = true;
             // releasing the input sets the bool to false
             playerControls.PlayerActions.Sprint.canceled += i => sprint_Input = false;
+
+            //UI
+            playerControls.UI.Inventory.performed += i => inventory_Input = true;
         }
 
         playerControls.Enable();
@@ -132,6 +142,7 @@ public class PlayerInputManager : MonoBehaviour
     {
         HandlePlayerMovementInput();
         HandleJumpInput();
+        HandleInventoryInput();
     }
 
     // Movement
@@ -176,6 +187,17 @@ public class PlayerInputManager : MonoBehaviour
 
             // attempt to perform jump
             player.playerMovement.AttempToPerformJump();
+        }
+    }
+
+    //UI
+    public void HandleInventoryInput()
+    {
+        if (inventory_Input)
+        {
+            inventory_Input = false;
+
+            inventoryButton.onClick.Invoke();
         }
     }
 }
