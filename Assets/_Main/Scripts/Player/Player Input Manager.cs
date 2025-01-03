@@ -197,7 +197,8 @@ public class PlayerInputManager : MonoBehaviour
         {
             inventory_Input = false;
 
-            inventoryButton.onClick.Invoke();
+            if(inventoryButton != null)
+                inventoryButton.onClick.Invoke();
         }
     }
 }
